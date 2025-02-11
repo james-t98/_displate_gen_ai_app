@@ -21,18 +21,18 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.header("Image 1")
-    st.image("/workspaces/_displate_gen_ai_app/daily_images/image (5).png", caption="Sunrise by the mountains")
+    st.image("daily_images/image (5).png", caption="Sunrise by the mountains")
     st.header("Image 4")
-    st.image("/workspaces/_displate_gen_ai_app/daily_images/image (5).png", caption="Sunrise by the mountains")
+    st.image("daily_images/image (5).png", caption="Sunrise by the mountains")
 
 with col2:
     st.header("Image 2")
-    st.image("/workspaces/_displate_gen_ai_app/daily_images/image (5).png", caption="Sunrise by the mountains")
+    st.image("daily_images/image (5).png", caption="Sunrise by the mountains")
     st.header("Image 5")
-    st.image("/workspaces/_displate_gen_ai_app/daily_images/image (5).png", caption="Sunrise by the mountains")
+    st.image("daily_images/image (5).png", caption="Sunrise by the mountains")
 
 with col3:
     st.header("Image 3")
-    st.image("/workspaces/_displate_gen_ai_app/daily_images/image (5).png", caption="Sunrise by the mountains")
+    st.image("daily_images/image (5).png", caption="Sunrise by the mountains")
     st.header("Image 6")
-    st.image("/workspaces/_displate_gen_ai_app/daily_images/image (5).png", caption="Sunrise by the mountains")
+    st.image("daily_images/image (5).png", caption="Sunrise by the mountains")
