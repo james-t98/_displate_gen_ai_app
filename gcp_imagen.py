@@ -1,11 +1,14 @@
 
 import vertexai
+import os
 from vertexai.preview.vision_models import ImageGenerationModel
 
 # TODO(developer): Update and un-comment below lines
 PROJECT_ID = "brave-cistern-450515-m7"
 output_file = "/workspaces/_displate_gen_ai_app/daily_images/input-image.png"
 prompt = "A lady in a summer dress walking by the beach in Italy." # The text prompt describing what you want to see.
+CREDENTIALS = ""
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = CREDENTIALS
 
 vertexai.init(project=PROJECT_ID, location="us-central1")
 
