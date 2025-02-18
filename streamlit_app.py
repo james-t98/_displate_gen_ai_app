@@ -1,53 +1,39 @@
 import streamlit as st
-import os
-import glob
-from gcp_imagen import generate_image
 
 st.title("🎈 Jaime's app")
 
-IMAGES_PATH = "daily_images"
-DAILY_IMAGES = glob.glob(f'{IMAGES_PATH}/*')
-IMAGES_NAMES = [os.path.basename(file) for file in DAILY_IMAGES]
-image_1, image_2, image_3, image_4 = False, False, False, False
-images = [image_1, image_2, image_3, image_4]
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-def display_generated_images():
-    pass
+def login():
+    if st.button("Log in"):
+        st.session_state.logged_in = True
+        st.rerun()
 
-def get_selected_images():
-    for image in images:
-        if image == False:
-            st.write("Downloading ", image)
+def logout():
+    if st.button("Log out"):
+        st.session_state.logged_in = False
+        st.rerun()
 
-col1 , col2 = st.columns(2)
-with col1:
-    if st.button("Generate an Image"):
-        display_generated_images()
-with col2:
-    if st.button("Download selected Images."):
-        get_selected_images()
+login_page = st.Page(login, title="Log in", icon=":material/login:")
+logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
 
-prompt = st.chat_input("Is there anything particular you are looking for today sir?")
-if prompt:
-    if prompt == "No":
-        st.write(f"Very well then. I shall continue with my search and provide you with you desired results.")
-    else:
-        st.write(f"User has sent the following prompt: {prompt}")
+profile = st.Page("pages/profile.py", title="About Me", icon=":material/manage_accounts:")
+home = st.Page("pages/home.py", title="Home", icon=":material/home:")
+generate_images = st.Page("pages/generate_images.py", title="Generate New Images", icon=":material/auto_awesome:")
+upload_images_page = st.Page("pages/upload_images.py", title="Upload Generated Images", icon=":material/drive_folder_upload:")
+delete_images_page = st.Page("pages/delete_images.py", title="Delete Generated Images", icon=":material/delete:")
+settings = st.Page("pages/settings.py", title="Settings", icon=":material/settings:")
 
-col1, col2 = st.columns(2)
+if st.session_state.logged_in:
+    pg = st.navigation(
+        {
+            "Account": [home, profile],
+            "Tasks": [generate_images, upload_images_page, delete_images_page],
+            "Utilities": [settings, logout_page]
+        }
+    )
+else:
+    pg = st.navigation([login_page])
 
-with col1:
-    with st.container(border=True):
-        image_1 = st.checkbox("Image #1")
-        st.image(DAILY_IMAGES[0], caption=IMAGES_NAMES[0])
-    with st.container(border=True):
-        image_3 = st.checkbox("Image #3")
-        st.image(DAILY_IMAGES[1], caption=IMAGES_NAMES[1])
-
-with col2:
-    with st.container(border=True):
-        image_2 = st.checkbox("Image #2")
-        st.image(DAILY_IMAGES[2], caption=IMAGES_NAMES[2])
-    with st.container(border=True):
-        image_4 = st.checkbox("Image #4")
-        st.image(DAILY_IMAGES[3], caption=IMAGES_NAMES[3])
+pg.run()
