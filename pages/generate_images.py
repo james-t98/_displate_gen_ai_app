@@ -4,8 +4,9 @@ import glob
 import shutil
 import time
 
-IMAGES_PATH = "daily_images"
-DAILY_IMAGES = glob.glob(f'{IMAGES_PATH}/*')
+src_dir = "computer_vision/daily_images"
+trg_dir = "computer_vision/upload_images"
+DAILY_IMAGES = glob.glob(f'{src_dir}/*')
 IMAGES_NAMES = [os.path.basename(file) for file in DAILY_IMAGES]
 
 col1, col2 = st.columns(2)
@@ -16,7 +17,7 @@ def save_images(images):
     msg.toast('Uploading...')
     for img in images:
         if img:
-            shutil.copy2(img, "upload_images")
+            shutil.copy2(img, trg_dir)
     time.sleep(1)
     msg.toast('Successfully uploaded!', icon="🥞")
 

@@ -3,14 +3,14 @@ import os
 import glob
 import time
 
-IMAGES_PATH = "upload_images"
-DAILY_IMAGES = glob.glob(f'{IMAGES_PATH}/*')
+src_dir = "computer_vision/upload_images"
+DAILY_IMAGES = glob.glob(f'{src_dir}/*')
 IMAGES_NAMES = [os.path.basename(file) for file in DAILY_IMAGES]
 
 col1, col2 = st.columns(2)
 
 def image_exists(image):
-    return image if image else "template_images/image (5).png"
+    return image if image else "computer_vision/template_images/image (5).png"
 
 def delete_images(images):
     msg = st.toast('Gathering images...')
