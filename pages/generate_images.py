@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 import glob
+import shutil
+import time
 
 IMAGES_PATH = "daily_images"
 DAILY_IMAGES = glob.glob(f'{IMAGES_PATH}/*')
@@ -8,6 +10,16 @@ IMAGES_NAMES = [os.path.basename(file) for file in DAILY_IMAGES]
 image_1 , image_2, image_3, image_4 = False, False, False, False
 
 col1, col2 = st.columns(2)
+
+def upload_images(images):
+    msg = st.toast('Gathering images...')
+    time.sleep(1)
+    msg.toast('Uploading...')
+    for i, x in enumerate(images):
+        if x: 
+            shutil.copy2(DAILY_IMAGES[i], "upload_images")
+    time.sleep(1)
+    msg.toast('Successfully uploaded!', icon = "🥞")
 
 with col1:
     with st.container(border=True):
@@ -31,10 +43,6 @@ left, middle, right = st.columns(3)
 if left.button("Previous", icon=":material/skip_previous:", use_container_width=True):
     left.markdown("You clicked the Previous button.")
 if middle.button("Save Selected Images", icon=":material/bookmark:", use_container_width=True):
-    middle.markdown("Saving images")
-    for i, x in enumerate(images):
-        if x: 
-            middle.markdown(f"{IMAGES_NAMES[i]}")
-            middle.markdown(f"{DAILY_IMAGES}")
+    upload_images(images=images)
 if right.button("Generate", icon=":material/skip_next:", use_container_width=True):
     right.markdown("You clicked the Generate button.")
