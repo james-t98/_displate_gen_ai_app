@@ -21,15 +21,14 @@ logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
 profile = st.Page("pages/profile.py", title="About Me", icon=":material/manage_accounts:")
 home = st.Page("pages/home.py", title="Home", icon=":material/home:")
 generate_images = st.Page("pages/generate_images.py", title="Generate New Images", icon=":material/auto_awesome:")
-upload_images_page = st.Page("pages/upload_images.py", title="Upload Generated Images", icon=":material/drive_folder_upload:")
-delete_images_page = st.Page("pages/delete_images.py", title="Delete Generated Images", icon=":material/delete:")
+upload_images_page = st.Page("pages/images.py", title="Generated Images", icon=":material/drive_folder_upload:")
 settings = st.Page("pages/settings.py", title="Settings", icon=":material/settings:")
 
 if st.session_state.logged_in:
     pg = st.navigation(
         {
             "Account": [home, profile],
-            "Tasks": [generate_images, upload_images_page, delete_images_page],
+            "Tasks": [generate_images, upload_images_page],
             "Utilities": [settings, logout_page]
         }
     )

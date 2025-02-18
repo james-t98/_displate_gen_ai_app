@@ -7,42 +7,34 @@ import time
 IMAGES_PATH = "daily_images"
 DAILY_IMAGES = glob.glob(f'{IMAGES_PATH}/*')
 IMAGES_NAMES = [os.path.basename(file) for file in DAILY_IMAGES]
-image_1 , image_2, image_3, image_4 = False, False, False, False
 
 col1, col2 = st.columns(2)
 
-def upload_images(images):
+def save_images(images):
     msg = st.toast('Gathering images...')
     time.sleep(1)
     msg.toast('Uploading...')
-    for i, x in enumerate(images):
-        if x: 
-            shutil.copy2(DAILY_IMAGES[i], "upload_images")
+    for img in images:
+        if img:
+            shutil.copy2(img, "upload_images")
     time.sleep(1)
-    msg.toast('Successfully uploaded!', icon = "🥞")
+    msg.toast('Successfully uploaded!', icon="🥞")
 
-with col1:
-    with st.container(border=True):
-        image_1 = st.checkbox("Image 1: " + IMAGES_NAMES[0])
-        st.image(DAILY_IMAGES[0], caption="Insert description")
-    with st.container(border=True):
-        image_3 = st.checkbox("Image 3: " + IMAGES_NAMES[1])
-        st.image(DAILY_IMAGES[1], caption="Insert description")
+# Dictionary to track selected images
+selected_images = {}
 
-with col2:
-    with st.container(border=True):
-        image_2 = st.checkbox("Image 2: " + IMAGES_NAMES[2])
-        st.image(DAILY_IMAGES[2], caption="Insert description")
-    with st.container(border=True):
-        image_4 = st.checkbox("Image 4: " + IMAGES_NAMES[3])
-        st.image(DAILY_IMAGES[3], caption="Insert description")
+# **Dynamically create a 2x2 grid**
+for i, image in enumerate(DAILY_IMAGES[:4]):  # Limit to 4 images
+    col = col1 if i % 2 == 0 else col2  # Assign columns dynamically
+    with col:
+        with st.container(border=True):
+            selected_images[image] = st.checkbox(f"Image {i+1}: {IMAGES_NAMES[i]}")
+            st.image(image, caption="Insert description")
 
-images = [image_1 , image_2, image_3, image_4 ]
+# **Buttons for actions**
+left, right = st.columns(2)
+if left.button("Save Selected Images", icon=":material/bookmark:", use_container_width=True):
+    save_images([img for img, selected in selected_images.items() if selected])
 
-left, middle, right = st.columns(3)
-if left.button("Previous", icon=":material/skip_previous:", use_container_width=True):
-    left.markdown("You clicked the Previous button.")
-if middle.button("Save Selected Images", icon=":material/bookmark:", use_container_width=True):
-    upload_images(images=images)
 if right.button("Generate", icon=":material/skip_next:", use_container_width=True):
     right.markdown("You clicked the Generate button.")
