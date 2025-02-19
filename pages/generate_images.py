@@ -21,6 +21,9 @@ def save_images(images):
     time.sleep(1)
     msg.toast('Successfully uploaded!', icon="🥞")
 
+def generate_images(prompt):
+    st.toast(prompt)
+
 # Dictionary to track selected images
 selected_images = {}
 
@@ -31,6 +34,10 @@ for i, image in enumerate(DAILY_IMAGES[:4]):  # Limit to 4 images
         with st.container(border=True):
             selected_images[image] = st.checkbox(f"Image {i+1}: {IMAGES_NAMES[i]}")
             st.image(image, caption="Insert description")
+
+prompt = st.chat_input("Is there anything particular you are looking for today sir?")
+if prompt:
+    generate_images("Will send the prompt to the appropriate LLM in the future.")
 
 # **Buttons for actions**
 left, right = st.columns(2)
