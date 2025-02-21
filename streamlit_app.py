@@ -19,9 +19,8 @@ logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
 portfolio = st.Page("pages/portfolio.py", title="Portfolio", icon=":material/home:")
 profile = st.Page("pages/profile.py", title="About Me", icon=":material/manage_accounts:")
 
-gen_ai = st.Page("pages/generative_ai.py", title="Generative AI", icon=":material/filter_drama:")
-generate_images = st.Page("pages/generate_images.py", title="Generate New Images", icon=":material/auto_awesome:")
-upload_images_page = st.Page("pages/images.py", title="Generated Images", icon=":material/drive_folder_upload:")
+chat_bot = st.Page("pages/chat_bot.py", title="LLM ChatBot", icon=":material/filter_drama:")
+image_generation = st.Page("pages/generative_images.py", title="Image Generation", icon=":material/auto_awesome:")
 
 sentiment_analysis = st.Page("pages/sentiment_analysis.py", title="Sentiment Analysis", icon=":material/psychology:")
 
@@ -43,7 +42,7 @@ if st.session_state.logged_in:
     pg = st.navigation(
         {
             "Home": [portfolio, profile],
-            "Generative AI": [gen_ai, generate_images, upload_images_page],
+            "Generative AI": [chat_bot, image_generation],
             "Natural Language Processing": [sentiment_analysis],
             "Computer Vision": [computer_vision_image_classification],
             "Automotive": [auto],
