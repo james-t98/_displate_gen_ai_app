@@ -19,6 +19,8 @@ logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
 profile = st.Page("pages/profile.py", title="About Me", icon=":material/manage_accounts:")
 home = st.Page("pages/home.py", title="Home", icon=":material/home:")
 
+gen_ai = st.Page("pages/generative_ai.py", title="Generative AI", icon=":material/filter_drama:")
+
 sentiment_analysis = st.Page("pages/sentiment_analysis.py", title="Sentiment Analysis", icon=":material/psychology:")
 
 generate_images = st.Page("pages/generate_images.py", title="Generate New Images", icon=":material/auto_awesome:")
@@ -42,6 +44,7 @@ if st.session_state.logged_in:
     pg = st.navigation(
         {
             "Account": [home, profile],
+            "Generative AI": [gen_ai],
             "Natural Language Processing": [sentiment_analysis],
             "Computer Vision": [generate_images, upload_images_page],
             "Automotive": [auto],
