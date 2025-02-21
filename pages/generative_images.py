@@ -6,8 +6,8 @@ import time
 
 gen_dir = "generative_ai/image_generation/generated_images"
 sav_dir = "generative_ai/image_generation/saved_images"
-DAILY_IMAGES = glob.glob(f'{gen_dir}/*')
-IMAGES_NAMES = [os.path.basename(file) for file in DAILY_IMAGES]
+IMAGES = glob.glob(f'{gen_dir}/*')
+IMAGES_NAMES = [os.path.basename(file) for file in IMAGES]
 
 col1, col2 = st.columns(2)
 
@@ -28,7 +28,7 @@ def generate_images(prompt):
 selected_images = {}
 
 # **Dynamically create a 2x2 grid**
-for i, image in enumerate(DAILY_IMAGES[:4]):  # Limit to 4 images
+for i, image in enumerate(IMAGES[:4]):  # Limit to 4 images
     col = col1 if i % 2 == 0 else col2  # Assign columns dynamically
     with col:
         with st.container(border=True):
@@ -47,10 +47,10 @@ if left.button("Save Selected Images", icon=":material/bookmark:", use_container
 if right.button("Generate", icon=":material/skip_next:", use_container_width=True):
     right.markdown("You clicked the Generate button.")
 
-st.header("Section 2")
+st.header("Saved Images")
 
-DAILY_IMAGES = glob.glob(f'{sav_dir}/*')
-IMAGES_NAMES = [os.path.basename(file) for file in DAILY_IMAGES]
+IMAGES = glob.glob(f'{sav_dir}/*')
+IMAGES_NAMES = [os.path.basename(file) for file in IMAGES]
 
 col1, col2 = st.columns(2)
 
@@ -73,7 +73,7 @@ def delete_images(images):
 selected_images = {}
 
 # **Dynamically create a 2x2 grid**
-for i, image in enumerate(DAILY_IMAGES[:4]):  # Limit to 4 images
+for i, image in enumerate(IMAGES[:4]):  # Limit to 4 images
     col = col1 if i % 2 == 0 else col2  # Assign columns dynamically
     with col:
         with st.container(border=True):
