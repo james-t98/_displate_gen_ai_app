@@ -38,6 +38,8 @@ finance = st.Page("pages/finance.py", title="FinTech Project", icon=":material/a
 research_astronomy = st.Page("pages/research_astronomy.py", title="Astronomy Project", icon=":material/rocket_launch:")
 research_oceanic = st.Page("pages/research_oceanic.py", title="Ocean/Marine Project", icon=":material/tsunami:")
 
+apartment_hunter = st.Page("pages/apartment_hunting.py", title="Apartment Hunter", icon=":material/apartment:")
+
 if st.session_state.logged_in:
     pg = st.navigation(
         {
@@ -50,6 +52,7 @@ if st.session_state.logged_in:
             "HealthCare": [health],
             "Finance": [finance],
             "Research": [research_astronomy, research_oceanic],
+            "Personal": [apartment_hunter],
             "Utilities": [logout_page]
         },
         expanded=False
