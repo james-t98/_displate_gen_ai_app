@@ -200,14 +200,12 @@ def draft_mail():
         """
     return msg
 
-st.write()
-
 # Taking inputs
-email_sender = st.text_input('From', value='jaime.tellie@gmail.com')
-email_receiver = st.text_input('To', value='jaime.tellie@gmail.com')
+email_sender = st.text_input('From', value=st.secrets['EMAIL_VERIFICATION']['sender'])
+email_receiver = st.text_input('To', value=st.secrets['EMAIL_VERIFICATION']['recipient'])
 subject = st.text_input('Subject', value='New Apartments Found')
 body = st.text_area('Body', value=draft_mail())
-password = st.text_input('Password', type="password") 
+password = st.text_input('Password', type="password", value=st.secrets['EMAIL_VERIFICATION']['password']) 
 
 if st.button("Send Email"):
     try:
