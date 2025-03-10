@@ -18,3 +18,4 @@ safetensors
 html5lib
 beautifulsoup4
 replicate
+mysql-connector-python

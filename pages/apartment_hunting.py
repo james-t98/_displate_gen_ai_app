@@ -1,11 +1,107 @@
 from bs4 import BeautifulSoup
 import requests
-import pandas as pd
+import mysql.connector
+from mysql.connector import Error
+from transformers import pipeline
 import streamlit as st
+from nlp._model import predict
 import smtplib
 from email.mime.text import MIMEText
 
+# Example URL (replace with the actual URL you're scraping)
+url = "https://www.pararius.nl/huurwoningen/rotterdam/0-1000"
+columns = ['Address', 'Postcode', 'Price', 'Resource']
+HOST = "localhost"
+USER = "root"
+PASSWORD = "nenbiz-9dapvi-putZym"
+DATABASE = "streamlit"
+TABLE = "Pararius"
+MAILING_LIST = []
+
+def get_description(url):
+    # Send a GET request to the webpage
+    response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+    if response.status_code != 200:
+        print("Failed to retrieve the webpage")
+        return None
+    
+    # Parse the page content
+    soup = BeautifulSoup(response.text, 'html.parser')
+    
+    # Locate the description container
+    description_div = soup.find('div', class_='listing-detail-description__content')
+    if not description_div:
+        print("Description section not found")
+        return None
+    
+    # Extract text from paragraphs inside the description div
+    paragraphs = description_div.find_all('p')
+    description = '\n'.join(p.get_text(strip=True) for p in paragraphs)
+    
+    return description
+
+def get_sentiment(token):
+    preds = predict(token)  # preds is a list containing a dict
+    if isinstance(preds, list) and len(preds) > 0 and isinstance(preds[0], dict):
+        return preds[0]["label"]
+    else:
+        return "No Prediction"
+
+def _connect_to_database():
+    try:
+        mydb = mysql.connector.connect(
+            host=HOST,
+            user=USER,
+            password=PASSWORD,
+            database=DATABASE
+        )
+        return mydb
+    except Error as e:
+        return None
+
+
+def def_mailing_list_demo(address, postcode, price, resource):
+    if len(MAILING_LIST) == 5:
+        return
+
+    MAILING_LIST.append({
+        'Address': address,
+        'Postcode': postcode,
+        'Price': price,
+        'Resource': resource,
+        'Sentiment': get_sentiment(get_description(resource))
+    })
+
+def insert_pararius_record_demo(address, postcode, price, resource):
+    def_mailing_list_demo(address, postcode, price, resource)
+
+def def_mailing_list(address, postcode, price, resource):
+    MAILING_LIST.append({
+        'Address': address,
+        'Postcode': postcode,
+        'Price': price,
+        'Resource': resource,
+        'Sentiment': get_sentiment(get_description(resource))
+    })
+
+def insert_pararius_record(mydb, address, postcode, price, resource):
+    mycursor = mydb.cursor()
+    sql = f"INSERT IGNORE INTO {TABLE} (Address, Postcode, Price, Resource) VALUES (%s, %s, %s, %s)"
+    val = (address, postcode, price, resource)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    def_mailing_list(address, postcode, price, resource)
+
+def exists(mydb, postcode):
+    cursor = mydb.cursor()
+    sql = f"SELECT * FROM {TABLE} WHERE Postcode = '{postcode}'"
+    cursor.execute(sql)
+
+    rs = cursor.fetchall()
+    return (True if rs else False)
+
 def get_apartments_list(url):
+    mydb = _connect_to_database()
     response = requests.get(url)
 
     # Check if the request was successful
@@ -47,38 +143,70 @@ def get_apartments_list(url):
             agent_tag = apartment.find('div', class_='listing-search-item__info')
             agent = agent_tag.get_text(strip=True) if agent_tag else "No Agent"
 
-            # Store extracted data
-            apartments.append({
-                'Address': address,
-                'Postcode': postcode,
-                'Price': price,
-                'Size': size,
-                'Rooms': rooms,
-                'Year Built': year_built,
-                "Resource": resource,
-                'Agent': agent
-            })
+            # Find the paragraph with class 'listing-reactions-counter__details'
+            date = apartment.find("p", class_="listing-reactions-counter__details")
 
-        # Create a DataFrame
-        return pd.DataFrame(apartments)
+            # Extract text, split, and get the last two words
+            if date:
+                text = date.get_text(strip=True)
+                words = text.split()
+                extracted_text = " ".join(words[-2:])  # Get the last two words
 
-# Example URL (replace with the actual URL you're scraping)
-url = "https://www.pararius.nl/huurwoningen/rotterdam/0-1100"
+            if mydb == None:
+                insert_pararius_record_demo(address, postcode, int(price.split()[1]), resource)
 
-st.dataframe(get_apartments_list(url))
+            else:
+                if exists(mydb, postcode):
+                    continue
 
-with st.form("email"):
-   st.write("Email Heading and more Information to Follow!")
-   option = st.selectbox('Pick an option', ['Deciding', 'Yes','No',])
-   st.form_submit_button('Submit!')
+                insert_pararius_record(
+                    mydb,
+                    address,
+                    postcode,
+                    int(price.split()[1]),
+                    resource
+                )
 
-st.write(option)
+get_apartments_list(url)
+
+def draft_mail():
+    if len(MAILING_LIST) == 0:
+        return f"""
+            Hi Jaime, 
+            There are no new apartments that match your search criteria. 
+            Possible solutions could be updating the search criteria parameters. If not, we will continue to search. 
+            If new apartments are found that match your search criteria, we will update you via email.
+
+            Kind regards,
+            Future A.I. Engineer Inc.
+            """
+
+    msg = f""" 
+        Hi Jaime,
+        The following apartment(s) have been found on Pararius that might be of interest to you. 
+        """ 
+    for apartment in MAILING_LIST:
+        msg += f""" 
+            Address: {apartment['Address']}
+            Postcode: {apartment['Postcode']}
+            Price: {apartment['Price']}
+            Resource: {apartment['Resource']}
+            Sentiment: {apartment['Sentiment']}
+        """
+
+    msg += f"""
+        Kind regards,
+        Future A.I. Engineer Inc.
+        """
+    return msg
+
+st.write()
 
 # Taking inputs
-email_sender = st.text_input('From')
-email_receiver = st.text_input('To')
-subject = st.text_input('Subject')
-body = st.text_area('Body')
+email_sender = st.text_input('From', value='jaime.tellie@gmail.com')
+email_receiver = st.text_input('To', value='jaime.tellie@gmail.com')
+subject = st.text_input('Subject', value='New Apartments Found')
+body = st.text_area('Body', value=draft_mail())
 password = st.text_input('Password', type="password") 
 
 if st.button("Send Email"):
@@ -96,4 +224,4 @@ if st.button("Send Email"):
 
         st.success('Email sent successfully! 🚀')
     except Exception as e:
-        st.error(f"Erreur lors de l’envoi de l’e-mail : {e}")
+        st.error(f"Error in sending e-mail : {e}")
