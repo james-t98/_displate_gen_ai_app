@@ -22,4 +22,18 @@ for title in df['Title']:
 df['label'] = pred_labels
 df['score'] = pred_scores
 
-st.dataframe(df)  # Display the updated DataFrame
+cols = st.columns(2)  # Create 2 columns
+    
+ # Loop through images and distribute them into the 2-column layout
+for i, row in df.iterrows():
+    col = cols[i % 2]  # Alternate between the two columns
+    with col:
+        with st.container(border=True, height=420):
+            if row['Image'] != "No Image":
+                st.image(row['Image'], use_container_width=True)
+            else:
+                st.text("[No Image Available]")
+            st.write(f"**{row['Title']}**")
+            st.write(row['Date'])
+            st.write(row['label'])
+            st.write(f"[Read more]({row['Link']})")
