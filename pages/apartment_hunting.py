@@ -8,14 +8,6 @@ from nlp._model import predict
 import smtplib
 from email.mime.text import MIMEText
 
-# Example URL (replace with the actual URL you're scraping)
-url = "https://www.pararius.nl/huurwoningen/rotterdam/0-1000"
-columns = ['Address', 'Postcode', 'Price', 'Resource']
-HOST = "localhost"
-USER = "root"
-PASSWORD = "nenbiz-9dapvi-putZym"
-DATABASE = "streamlit"
-TABLE = "Pararius"
 MAILING_LIST = []
 
 def get_description(url):
@@ -50,10 +42,10 @@ def get_sentiment(token):
 def _connect_to_database():
     try:
         mydb = mysql.connector.connect(
-            host=HOST,
-            user=USER,
-            password=PASSWORD,
-            database=DATABASE
+            host=st.secrets['Apartment_Hunter']['HOST'],
+            user=st.secrets['Apartment_Hunter']['USER'],
+            password=st.secrets['Apartment_Hunter']['DB_PASSWORD'],
+            database=st.secrets['Apartment_Hunter']['DATABASE']
         )
         return mydb
     except Error as e:
@@ -86,7 +78,7 @@ def def_mailing_list(address, postcode, price, resource):
 
 def insert_pararius_record(mydb, address, postcode, price, resource):
     mycursor = mydb.cursor()
-    sql = f"INSERT IGNORE INTO {TABLE} (Address, Postcode, Price, Resource) VALUES (%s, %s, %s, %s)"
+    sql = f"INSERT IGNORE INTO {st.secrets['Apartment_Hunter']['TABLE']} (Address, Postcode, Price, Resource) VALUES (%s, %s, %s, %s)"
     val = (address, postcode, price, resource)
     mycursor.execute(sql, val)
     mydb.commit()
@@ -94,7 +86,7 @@ def insert_pararius_record(mydb, address, postcode, price, resource):
 
 def exists(mydb, postcode):
     cursor = mydb.cursor()
-    sql = f"SELECT * FROM {TABLE} WHERE Postcode = '{postcode}'"
+    sql = f"SELECT * FROM {st.secrets['Apartment_Hunter']['TABLE']} WHERE Postcode = '{postcode}'"
     cursor.execute(sql)
 
     rs = cursor.fetchall()
@@ -136,12 +128,6 @@ def get_apartments_list(url):
                     size = feature_items[0].get_text(strip=True)  # Example: '50 m²'
                 if len(feature_items) > 1:
                     rooms = feature_items[1].get_text(strip=True)  # Example: '2 kamers'
-                if len(feature_items) > 2:
-                    year_built = feature_items[2].get_text(strip=True)  # Example: '1938'
-
-            # Extract Agent
-            agent_tag = apartment.find('div', class_='listing-search-item__info')
-            agent = agent_tag.get_text(strip=True) if agent_tag else "No Agent"
 
             # Find the paragraph with class 'listing-reactions-counter__details'
             date = apartment.find("p", class_="listing-reactions-counter__details")
@@ -167,7 +153,7 @@ def get_apartments_list(url):
                     resource
                 )
 
-get_apartments_list(url)
+get_apartments_list(st.secrets['Apartment_Hunter']['URL'])
 
 def draft_mail():
     if len(MAILING_LIST) == 0:
@@ -201,11 +187,11 @@ def draft_mail():
     return msg
 
 # Taking inputs
-email_sender = st.text_input('From', value=st.secrets['EMAIL_VERIFICATION']['sender'])
-email_receiver = st.text_input('To', value=st.secrets['EMAIL_VERIFICATION']['recipient'])
+email_sender = st.text_input('From', value=st.secrets['Apartment_Hunter']['SENDER'])
+email_receiver = st.text_input('To', value=st.secrets['Apartment_Hunter']['RECIPIENT'])
 subject = st.text_input('Subject', value='New Apartments Found')
 body = st.text_area('Body', value=draft_mail())
-password = st.text_input('Password', type="password", value=st.secrets['EMAIL_VERIFICATION']['password']) 
+password = st.secrets['Apartment_Hunter']['PASSWORD']
 
 if st.button("Send Email"):
     try:
